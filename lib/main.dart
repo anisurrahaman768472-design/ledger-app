@@ -81,119 +81,23 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  void _showProfileDetails(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.grey.shade900,
-          title: const Text(
-            "প্রোফাইল বিবরণ",
-            style: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                "নাম: Anisur rahman",
-                style: TextStyle(color: Colors.amberAccent, fontSize: 16),
-              ),
-              SizedBox(height: 10),
-              Text(
-                "ফোন: +97431027647",
-                style: TextStyle(color: Colors.lightGreenAccent, fontSize: 16),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("বন্ধ করুন", style: TextStyle(color: Colors.pinkAccent)),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // প্রতিটি ট্যাবের জন্য আলাদা স্ক্রিন কন্টেন্ট
+  final List<Widget> _pages = [
+    const Center(child: Text("হোম পেজ", style: TextStyle(color: Colors.white, fontSize: 20))),
+    const Center(child: Text("দৈনিক হিসাব", style: TextStyle(color: Colors.white, fontSize: 20))),
+    const Center(child: Text("মাসিক হিসাব", style: TextStyle(color: Colors.white, fontSize: 20))),
+    const Center(child: Text("বাৎসরিক হিসাব", style: TextStyle(color: Colors.white, fontSize: 20))),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        backgroundColor: Colors.indigo.shade800,
-        title: const Text(
-          "আমার খাতা",
-          style: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          InkWell(
-            onTap: () => _showProfileDetails(context),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Row(
-                children: const [
-                  CircleAvatar(
-                    backgroundColor: Colors.amberAccent,
-                    radius: 16,
-                    child: Icon(Icons.person, size: 18, color: Colors.black87),
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    "Anisur rahman",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.amberAccent,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        title: const Text("আমার খাতা"),
+        backgroundColor: Colors.indigo.shade900,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "ফাইল সিলেক্ট করুন:",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.orangeAccent,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 15),
-            Card(
-              color: Colors.grey.shade900,
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ListTile(
-                leading: const Icon(Icons.folder, color: Colors.amberAccent, size: 36),
-                title: const Text(
-                  "মেস খরচ",
-                  style: TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold),
-                ),
-                subtitle: const Text(
-                  "মোট এন্ট্রি: ০",
-                  style: TextStyle(color: Colors.lightGreenAccent),
-                ),
-                onTap: () {},
-              ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.amberAccent,
-        onPressed: () {},
-        child: const Icon(Icons.add, color: Colors.black87),
-      ),
+      body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         selectedItemColor: Colors.cyanAccent,
