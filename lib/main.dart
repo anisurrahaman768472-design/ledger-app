@@ -1,150 +1,23 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 
-void main() => runApp(const LedgerApp());
+void main() {
+  runApp(const MyApp());
+}
 
-class LedgerApp extends StatelessWidget {
-  const LedgerApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.indigo,
-          brightness: Brightness.dark,
-        ),
-      ),
-      home: const SplashScreen(),
+      home: HomeScreen(),
     );
   }
 }
 
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Timer(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.indigo.shade900,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.account_balance_wallet, size: 80, color: Colors.amberAccent),
-            SizedBox(height: 20),
-            Text(
-              "Notebook Ledger",
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.cyanAccent,
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              "আপনার হিসাব রাখুন সহজে",
-              style: TextStyle(fontSize: 16, color: Colors.orangeAccent),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-// আলাদা পেজ কন্টেন্টগুলো
-class HomePageContent extends StatelessWidget {
-  const HomePageContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "হোম পেজ - ড্যাশবোর্ড ওভারভিউ",
-        style: TextStyle(color: Colors.white, fontSize: 20),
-      ),
-    );
-  }
-}
-
-class DailyPageContent extends StatelessWidget {
-  const DailyPageContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "দৈনিক হিসাব-নিকাশের পেজ",
-        style: TextStyle(color: Colors.white, fontSize: 20),
-      ),
-    );
-  }
-}
-
-class MonthlyPageContent extends StatelessWidget {
-  const MonthlyPageContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "মাসিক হিসাব-নিকাশের পেজ",
-        style: TextStyle(color: Colors.white, fontSize: 20),
-      ),
-    );
-  }
-}
-
-class YearlyPageContent extends StatelessWidget {
-  const YearlyPageContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "বাৎসরিক হিসাব-নিকাশের পেজ",
-        style: TextStyle(color: Colors.white, fontSize: 20),
-      ),
-    );
-  }
-}
-
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
-
-  // প্রতিটি ট্যাবের জন্য আলাদা স্ক্রিন কন্টেন্ট
-  
-  final List<Widget> _pages = const [
-    HomePageContent(),
-    DailyPageContent(),
-    MonthlyPageContent(),
-    YearlyPageContent(),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -154,24 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("আমার খাতা"),
         backgroundColor: Colors.indigo.shade900,
       ),
-      body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: Colors.cyanAccent,
-        unselectedItemColor: Colors.white60,
-        backgroundColor: Colors.black87,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "হোম"),
-          BottomNavigationBarItem(icon: Icon(Icons.today), label: "দৈনিক"),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: "মাসিক"),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: "বাৎসরিক"),
-        ],
+      body: const Center(
+        child: Text(
+          "অ্যাপ সফলভাবে চালু হয়েছে!",
+          style: TextStyle(color: Colors.white, fontSize: 20),
+        ),
       ),
     );
   }
