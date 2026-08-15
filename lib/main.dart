@@ -70,6 +70,62 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
+// আলাদা পেজ কন্টেন্টগুলো
+class HomePageContent extends StatelessWidget {
+  const HomePageContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "হোম পেজ - ড্যাশবোর্ড ওভারভিউ",
+        style: TextStyle(color: Colors.white, fontSize: 20),
+      ),
+    );
+  }
+}
+
+class DailyPageContent extends StatelessWidget {
+  const DailyPageContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "দৈনিক হিসাব-নিকাশের পেজ",
+        style: TextStyle(color: Colors.white, fontSize: 20),
+      ),
+    );
+  }
+}
+
+class MonthlyPageContent extends StatelessWidget {
+  const MonthlyPageContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "মাসিক হিসাব-নিকাশের পেজ",
+        style: TextStyle(color: Colors.white, fontSize: 20),
+      ),
+    );
+  }
+}
+
+class YearlyPageContent extends StatelessWidget {
+  const YearlyPageContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "বাৎসরিক হিসাব-নিকাশের পেজ",
+        style: TextStyle(color: Colors.white, fontSize: 20),
+      ),
+    );
+  }
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -82,11 +138,12 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   // প্রতিটি ট্যাবের জন্য আলাদা স্ক্রিন কন্টেন্ট
-  final List<Widget> _pages = [
-    const Center(child: Text("হোম পেজ", style: TextStyle(color: Colors.white, fontSize: 20))),
-    const Center(child: Text("দৈনিক হিসাব", style: TextStyle(color: Colors.white, fontSize: 20))),
-    const Center(child: Text("মাসিক হিসাব", style: TextStyle(color: Colors.white, fontSize: 20))),
-    const Center(child: Text("বাৎসরিক হিসাব", style: TextStyle(color: Colors.white, fontSize: 20))),
+  
+  final List<Widget> _pages = const [
+    HomePageContent(),
+    DailyPageContent(),
+    MonthlyPageContent(),
+    YearlyPageContent(),
   ];
 
   @override
