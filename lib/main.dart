@@ -75,13 +75,10 @@ class _MainScreenState extends State<MainScreen> {
     _loadDataFromPrefs();
   }
 
-  // Local Storage থেকে ডেটা লোড করা
   Future<void> _loadDataFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    // সিম্পল ডেমো ডেটা হ্যান্ডলিং বা সেভ করা ডেটা লোড করার লজিক এখানে থাকবে
   }
 
-  // নতুন ট্রানজেকশন যোগ করার ফাংশন
   void _addTransaction() {
     if (_descController.text.isNotEmpty && _amountController.text.isNotEmpty) {
       setState(() {
@@ -97,7 +94,6 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  // এন্ট্রি যোগ করার পপআপ ডায়ালগ
   void _showAddTransactionModal() {
     showModalBottomSheet(
       context: context,
@@ -159,7 +155,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      // Home / Dashboard Tab with Summary Card
       SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -175,8 +170,6 @@ class _MainScreenState extends State<MainScreen> {
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 20),
-            
-            // সামারি কার্ড (Summary Card)
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -203,21 +196,14 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
             const SizedBox(height: 20),
-
             _buildMenuCard('Daily Ledger', 'Add today\'s expense', Icons.today, () {}),
             _buildMenuCard('Weekly Ledger', 'View weekly statement', Icons.date_range, () {}),
             _buildMenuCard('Monthly Ledger', 'Total monthly account', Icons.calendar_month, () {}),
           ],
         ),
       ),
-      
-      // Daily Tab
       Center(child: Text('Daily Ledger View (${_transactions.length} items)', style: const TextStyle(fontSize: 18))),
-      
-      // Weekly Tab
       const Center(child: Text('Weekly Ledger View', style: TextStyle(fontSize: 18))),
-      
-      // Monthly Tab
       const Center(child: Text('Monthly Ledger View', style: TextStyle(fontSize: 18))),
     ];
 
@@ -228,7 +214,6 @@ class _MainScreenState extends State<MainScreen> {
         elevation: 0,
         actions: [
           PopupMenuButton<String>(
-            onplet: (value) {},
             onSelected: (value) {
               if (value == 'bn') {
                 widget.onLanguageChanged(const Locale('bn'));
@@ -245,7 +230,6 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
       body: pages[_currentIndex],
-      // ফ্লোটিং অ্যাকশন বাটন (Quick Add Button)
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.tealAccent,
         foregroundColor: Colors.black,
