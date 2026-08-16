@@ -43,84 +43,76 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Widget _buildDailyPage() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          TextField(
-            controller: _titleController,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
-              labelText: "বিবরণ (যেমন: বাজার খরচ)",
-              labelStyle: TextStyle(color: Colors.white70),
-              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
-              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.cyanAccent)),
-            ),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: _amountController,
-            keyboardType: TextInputType.number,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
-              labelText: "টাকার পরিমাণ",
-              labelStyle: TextStyle(color: Colors.white70),
-              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
-              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.cyanAccent)),
-            ),
-          ),
-          const SizedBox(height: 15),
-          ElevatedButton.icon(
-            onPressed: _addTransaction,
-            icon: const Icon(Icons.save),
-            label: const Text("সেভ করুন"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.cyanAccent,
-              foregroundColor: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _dailyTransactions.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  color: Colors.indigo.shade800,
-                  child: ListTile(
-                    title: Text(
-                      _dailyTransactions[index]["title"]!,
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    trailing: Text(
-                      "৳ ${_dailyTransactions[index]["amount"]!}",
-                      style: const TextStyle(
-                        color: Colors.cyanAccent,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    Widget currentBody;
-    if (_currentIndex == 0) {
-      currentBody = const Center(child: Text("হোম পেজ", style: TextStyle(color: Colors.white, fontSize: 20)));
-    } else if (_currentIndex == 1) {
-      currentBody = _buildDailyPage();
-    } else if (_currentIndex == 2) {
-      currentBody = const Center(child: Text("মাসিক হিসাব", style: TextStyle(color: Colors.white, fontSize: 20)));
-    } else {
-      currentBody = const Center(child: Text("বাৎসরিক হিসাব", style: TextStyle(color: Colors.white, fontSize: 20)));
-    }
+    final List<Widget> pages = [
+      const Center(child: Text("হোম পেজ", style: TextStyle(color: Colors.white, fontSize: 20))),
+      Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _titleController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: "বিবরণ (যেমন: বাজার খরচ)",
+                labelStyle: TextStyle(color: Colors.white70),
+                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
+                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.cyanAccent)),
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _amountController,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: "টাকার পরিমাণ",
+                labelStyle: TextStyle(color: Colors.white70),
+                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
+                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.cyanAccent)),
+              ),
+            ),
+            const SizedBox(height: 15),
+            ElevatedButton.icon(
+              onPressed: _addTransaction,
+              icon: const Icon(Icons.save),
+              label: const Text("সেভ করুন"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.cyanAccent,
+                foregroundColor: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _dailyTransactions.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    color: Colors.indigo.shade800,
+                    child: ListTile(
+                      title: Text(
+                        _dailyTransactions[index]["title"]!,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      trailing: Text(
+                        "৳ ${_dailyTransactions[index]["amount"]!}",
+                        style: const TextStyle(
+                          color: Colors.cyanAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      const Center(child: Text("মাসিক হিসাব", style: TextStyle(color: Colors.white, fontSize: 20))),
+      const Center(child: Text("বাৎসরিক হিসাব", style: TextStyle(color: Colors.white, fontSize: 20))),
+    ];
 
     return Scaffold(
       backgroundColor: Colors.grey[900],
@@ -128,7 +120,10 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("আমার খাতা - Anisur Rahman"),
         backgroundColor: Colors.indigo.shade900,
       ),
-      body: currentBody,
+      body: IndexedStack(
+        index: _currentIndex,
+        children: pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         backgroundColor: Colors.black,
