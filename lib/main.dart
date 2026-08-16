@@ -59,7 +59,7 @@ class AppLocalizations {
       'title_daily': 'দৈনিক হিসাব',
       'title_weekly': 'সাপ্তাহিক হিসাব',
       'title_monthly': 'মাসিক হিসাব',
-      'label_desc': 'বিবরণ',
+      'label_desc': 'নাম',
       'label_amount': 'টাকা',
       'label_date': 'তারিখ',
       'btn_save': 'সেভ করুন',
@@ -69,7 +69,7 @@ class AppLocalizations {
       'btn_yes': 'হ্যাঁ',
       'btn_no': 'না',
       'home_nav': 'হোম',
-      'daily_nav': 'দৈনিক',
+      'daily_nav': 'প্রতিদিন',
       'weekly_nav': 'সাপ্তাহিক',
       'monthly_nav': 'মাসিক',
       'settings': 'সেটিংস',
@@ -128,7 +128,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
 // ==========================================
 class SettingsProvider with ChangeNotifier {
   bool _isDarkMode = false;
-  Locale _locale = const Locale('bn'); // ডিফল্ট বাংলা
+  Locale _locale = const Locale('bn');
 
   bool get isDarkMode => _isDarkMode;
   Locale get locale => _locale;
@@ -181,7 +181,6 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // থিম সেটিংস
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.grey[900],
@@ -189,8 +188,6 @@ class MyApp extends StatelessWidget {
         cardTheme: CardTheme(color: Colors.grey[850]),
       ),
       themeMode: settingsProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      
-      // ভাষা সেটিংস
       locale: settingsProvider.locale,
       supportedLocales: const [
         Locale('en', ''),
@@ -281,7 +278,6 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
         children: [
           Text(loc.getTranslatedValue('settings'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
-          // ভাষা পরিবর্তন
           ListTile(
             title: Text(loc.getTranslatedValue('language')),
             trailing: DropdownButton<Locale>(
@@ -299,7 +295,6 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
             ),
           ),
           const Divider(),
-          // ডার্ক মোড টগল
           SwitchListTile(
             title: Text(loc.getTranslatedValue('dark_mode')),
             value: settingsProvider.isDarkMode,
@@ -351,7 +346,7 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
           TextField(controller: _amountController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: loc.getTranslatedValue('label_amount'), border: const OutlineInputBorder())),
           const SizedBox(height: 10),
           ListTile(
-            title: Text("${loc.getTranslatedValue('label_date')}:${DateFormat.yMd(Localizations.localeOf(context).languageCode).format(_selectedDate)}"),
+            title: Text("${loc.getTranslatedValue('label_date')}: ${DateFormat.yMd(Localizations.localeOf(context).languageCode).format(_selectedDate)}"),
             trailing: const Icon(Icons.calendar_today),
             onTap: () => _pickDate(context),
           ),
@@ -359,4 +354,104 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
             style: ElevatedButton.styleFrom(backgroundColor: btnColor),
             onPressed: () => _addTransaction(list, loc),
             child: Text(loc.getTranslatedValue('btn_save')),
-          
+          ),
+          const SizedBox(height: 20),
+          Align(alignment: Alignment.centerLeft, child: Text(loc.getTranslatedValue('header_list'), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.cyanAccent))),
+          const SizedBox(height: 10),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: list.length,
+            itemBuilder: (context, index) {
+              final item = list[index];
+              return Card(
+                child: ListTile(
+                  title: Text(item['desc']!),
+                  subtitle: Text("${loc.getTranslatedValue('label_date')}: ${item['date']}"),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("৳ ${item['amount']}", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.greenAccent)),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _showDeleteDialog(context, list, index, loc),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final settingsProvider = Provider.of<SettingsProvider>(context);
+
+    final titles = [
+      loc.getTranslatedValue('home_title'),
+      loc.getTranslatedValue('title_daily'),
+      loc.getTranslatedValue('title_weekly'),
+      loc.getTranslatedValue('title_monthly')
+    ];
+
+    final bottomNavItems = [
+      BottomNavigationBarItem(icon: const Icon(Icons.home), label: loc.getTranslatedValue('home_nav')),
+      BottomNavigationBarItem(icon: const Icon(Icons.today), label: loc.getTranslatedValue('daily_nav')),
+      BottomNavigationBarItem(icon: const Icon(Icons.date_range), label: loc.getTranslatedValue('weekly_nav')),
+      BottomNavigationBarItem(icon: const Icon(Icons.calendar_month), label: loc.getTranslatedValue('monthly_nav')),
+    ];
+
+    final pages = [
+      _buildHome(loc),
+      _buildTransactionPage(_dailyTransactions, Colors.indigo, loc),
+      _buildTransactionPage(_weeklyTransactions, Colors.teal, loc),
+      _buildTransactionPage(_monthlyTransactions, Colors.deepPurple, loc),
+      _buildSettingsPage(loc, settingsProvider),
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_currentIndex == 4 ? loc.getTranslatedValue('settings') : titles[_currentIndex]),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'settings') {
+                setState(() {
+                  _currentIndex = 4;
+                });
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem<String>(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    const Icon(Icons.settings, color: Colors.grey),
+                    const SizedBox(width: 8),
+                    Text(loc.getTranslatedValue('settings')),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: pages[_currentIndex == 4 ? 4 : _currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex > 3 ? 0 : _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        items: bottomNavItems,
+      ),
+    );
+  }
+}
