@@ -31,14 +31,17 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
   int _currentIndex = 0;
   final List<String> _titles = ["হোম - মেইন মেনু", "দৈনিক হিসাব", "সাপ্তাহিক হিসাব", "মাসিক হিসাব"];
 
+  // দৈনিকের কন্ট্রোলার ও লিস্ট
   final TextEditingController _dailyDescController = TextEditingController();
   final TextEditingController _dailyAmountController = TextEditingController();
   final List<Map<String, String>> _dailyTransactions = [];
 
+  // সাপ্তাহিকের কন্ট্রোলার ও লিস্ট
   final TextEditingController _weeklyDescController = TextEditingController();
   final TextEditingController _weeklyAmountController = TextEditingController();
   final List<Map<String, String>> _weeklyTransactions = [];
 
+  // মাসিকের কন্ট্রোলার ও লিস্ট
   final TextEditingController _monthlyDescController = TextEditingController();
   final TextEditingController _monthlyAmountController = TextEditingController();
   final List<Map<String, String>> _monthlyTransactions = [];
@@ -53,6 +56,7 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
     }
   }
 
+  // হোম পেজ
   Widget _buildHome() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -83,16 +87,52 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
     );
   }
 
-  Widget _buildPage(TextEditingController d, TextEditingController a, List<Map<String, String>> l, Color btnColor) {
+  // আলাদা পেজ তৈরির উইজেট
+  Widget _buildTransactionPage(TextEditingController descCtrl, TextEditingController amountCtrl, List<Map<String, String>> list, Color btnColor) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          TextField(controller: d, decoration: const InputDecoration(labelText: "বিবরণ", border: OutlineInputBorder())),
+          TextField(
+            controller: descCtrl,
+            decoration: const InputDecoration(labelText: "বিবরণ", border: OutlineInputBorder()),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: amountCtrl,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: "টাকা", border: OutlineInputBorder()),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: btnColor,
+              minimumSize: const Size.fromHeight(45),
+            ),
+            onPressed: () => _addTransaction(descCtrl, amountCtrl, list),
+            child: const Text("সেভ করুন", style: TextStyle(color: Colors.white)),
+          ),
+          const SizedBox(height: 20),
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text("তালিকা:", style: TextStyle(fontSize: 16, color: Colors.cyanAccent, fontWeight: FontWeight.bold)),
+          ),
           const SizedBox(height: 10),
-          TextField(controller: a, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: "টাকা", border: OutlineInputBorder())),
-          ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: btnColor), onPressed: () => _addTransaction(d, a, l), child: const Text("সেভ করুন")),
-          Expanded(child: ListView.builder(itemCount: l.length, itemBuilder: (ctx, i) => ListTile(title: Text(l[i]['desc']!), trailing: Text("৳ ${l[i]['amount']}")))),
+          Expanded(
+            child: ListView.builder(
+              itemCount: list.length,
+              itemBuilder: (context, index) {
+                final item = list[index];
+                return Card(
+                  color: Colors.grey[850],
+                  child: ListTile(
+                    title: Text(item['desc'] ?? ''),
+                    trailing: Text("৳ ${item['amount']}", style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -106,15 +146,16 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
         index: _currentIndex,
         children: [
           _buildHome(),
-          _buildPage(_dailyDescController, _dailyAmountController, _dailyTransactions, Colors.indigo),
-          _buildPage(_weeklyDescController, _weeklyAmountController, _weeklyTransactions, Colors.teal),
-          _buildPage(_monthlyDescController, _monthlyAmountController, _monthlyTransactions, Colors.deepPurple),
+          _buildTransactionPage(_dailyDescController, _dailyAmountController, _dailyTransactions, Colors.indigo.shade700),
+          _buildTransactionPage(_weeklyDescController, _weeklyAmountController, _weeklyTransactions, Colors.teal.shade700),
+          _buildTransactionPage(_monthlyDescController, _monthlyAmountController, _monthlyTransactions, Colors.deepPurple.shade700),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.cyanAccent,
+        unselectedItemColor: Colors.white60,
         backgroundColor: Colors.black,
         onTap: (index) => setState(() => _currentIndex = index),
         items: const [
