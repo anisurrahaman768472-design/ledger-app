@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
-// ১. ভাষার ডেটা ও অনুবাদের ক্লাস
+// ==========================================
+// ১. বহুভাষী সিস্টেম (Internationalization - i18n)
+// ==========================================
 class AppLocalizations {
   final Locale locale;
   AppLocalizations(this.locale);
@@ -14,8 +18,8 @@ class AppLocalizations {
   static const Map<String, Map<String, String>> _localizedValues = {
     'en': {
       'home_title': 'Home - Main Menu',
-      'welcome_msg': 'Welcome to My Khata App!',
-      'welcome_desc': 'Keep all your accounts safe in one place. Access any menu below:',
+      'welcome_msg': 'Welcome to My Khata!',
+      'welcome_desc': 'Keep all your accounts safe in one place. Access below:',
       'daily_ledger': 'Daily Ledger',
       'daily_subtitle': 'Add today\'s expense',
       'weekly_ledger': 'Weekly Ledger',
@@ -38,11 +42,14 @@ class AppLocalizations {
       'daily_nav': 'Daily',
       'weekly_nav': 'Weekly',
       'monthly_nav': 'Monthly',
+      'settings': 'Settings',
+      'language': 'Language',
+      'dark_mode': 'Dark Mode',
     },
     'bn': {
       'home_title': 'হোম - মেইন মেনু',
-      'welcome_msg': 'আমার খাতা - অ্যাপে স্বাগতম!',
-      'welcome_desc': 'আপনার সকল হিসাব নিকাশ এখন এক জায়গায় নিরাপদে রাখুন। নিচে থেকে যেকোনো মেনুতে প্রবেশ করুন:',
+      'welcome_msg': 'আমার খাতায় স্বাগতম!',
+      'welcome_desc': 'আপনার সকল হিসাব নিকাশ এক জায়গায় নিরাপদে রাখুন:',
       'daily_ledger': 'দৈনিক খাতা',
       'daily_subtitle': 'আজকের খরচ যোগ করুন',
       'weekly_ledger': 'সাপ্তাহিক খাতা',
@@ -62,14 +69,17 @@ class AppLocalizations {
       'btn_yes': 'হ্যাঁ',
       'btn_no': 'না',
       'home_nav': 'হোম',
-      'daily_nav': 'দৈনিক',
+      'daily_nav': 'প্রতিদিন',
       'weekly_nav': 'সাপ্তাহিক',
       'monthly_nav': 'মাসিক',
+      'settings': 'সেটিংস',
+      'language': 'ভাষা',
+      'dark_mode': 'ডার্ক মোড',
     },
     'es': {
       'home_title': 'Inicio - Menú Principal',
-      'welcome_msg': '¡Bienvenido a Mi Libro de Cuentas!',
-      'welcome_desc': 'Mantenga todas sus cuentas seguras en un solo lugar. Acceda a cualquier menú a continuación:',
+      'welcome_msg': '¡Bienvenido a My Khata!',
+      'welcome_desc': 'Mantenga todas sus cuentas seguras en un solo lugar:',
       'daily_ledger': 'Registro Diario',
       'daily_subtitle': 'Agregar gasto de hoy',
       'weekly_ledger': 'Registro Semanal',
@@ -92,6 +102,9 @@ class AppLocalizations {
       'daily_nav': 'Diario',
       'weekly_nav': 'Semanal',
       'monthly_nav': 'Mensual',
+      'settings': 'Configuración',
+      'language': 'Idioma',
+      'dark_mode': 'Modo Oscuro',
     },
   };
 
@@ -110,46 +123,79 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   bool shouldReload(LocalizationsDelegate<AppLocalizations> old) => false;
 }
 
-// ২. মেইন অ্যাপ ক্লাস (ভাষা পরিবর্তন হ্যান্ডেল করার জন্য)
+// ==========================================
+// ২. সেটিংস প্রোভাইডার (Theme & Language)
+// ==========================================
+class SettingsProvider with ChangeNotifier {
+  bool _isDarkMode = false;
+  Locale _locale = const Locale('bn'); // ডিফল্ট বাংলা
+
+  bool get isDarkMode => _isDarkMode;
+  Locale get locale => _locale;
+
+  SettingsProvider() {
+    _loadSettingsFromPrefs();
+  }
+
+  _loadSettingsFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    String langCode = prefs.getString('languageCode') ?? 'bn';
+    _locale = Locale(langCode);
+    notifyListeners();
+  }
+
+  void toggleTheme(bool value) async {
+    _isDarkMode = value;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isDarkMode', value);
+    notifyListeners();
+  }
+
+  void setLanguage(Locale locale) async {
+    _locale = locale;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('languageCode', locale.languageCode);
+    notifyListeners();
+  }
+}
+
+// ==========================================
+// ৩. মেইন অ্যাপ উইজেট
+// ==========================================
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => SettingsProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  // গ্লোবাল স্টেট অ্যাক্সেস করার জন্য স্ট্যাটিক মেথড
-  static void setLocale(BuildContext context, Locale newLocale) {
-    _MyAppState state = context.findAncestorStateOfType<_MyAppState>()!;
-    state.setLocale(newLocale);
-  }
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  Locale? _locale;
-
-  void setLocale(Locale locale) {
-    setState(() {
-      _locale = locale;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = Provider.of<SettingsProvider>(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
+      // থিম সেটিংস
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.grey[900],
         appBarTheme: AppBarTheme(backgroundColor: Colors.indigo.shade900),
+        cardTheme: CardTheme(color: Colors.grey[850]),
       ),
-      locale: _locale, // বর্তমান ভাষা সেট করা
+      themeMode: settingsProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      
+      // ভাষা সেটিংস
+      locale: settingsProvider.locale,
       supportedLocales: const [
-        Locale('en', ''), // ইংলিশ
-        Locale('bn', ''), // বাংলা
-        Locale('es', ''), // হিন্দি
+        Locale('en', ''),
+        Locale('bn', ''),
+        Locale('es', ''),
       ],
       localizationsDelegates: const [
         _AppLocalizationsDelegate(),
@@ -162,7 +208,9 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-// ৩. মূল অ্যাপের পেজ ও উইজেট (অনুবাদ ব্যবহার করে আপডেট করা হয়েছে)
+// ==========================================
+// ৪. মূল অ্যাপের পেজ ও উইজেট
+// ==========================================
 class AmarKhataApp extends StatefulWidget {
   const AmarKhataApp({super.key});
 
@@ -179,20 +227,18 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
   final List<Map<String, String>> _monthlyTransactions = [];
   DateTime _selectedDate = DateTime.now();
 
-  // তারিখ সিলেক্ট করার ফাংশন (Date Format is locale-aware)
   Future<void> _pickDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
-      locale: Localizations.localeOf(context), // তারিখের ক্যালেন্ডার ভাষা অনুযায়ী দেখাবে
+      locale: Localizations.localeOf(context),
     );
     if (picked != null) setState(() => _selectedDate = picked);
   }
 
-  // ট্রানজ্যাকশন যোগ করার ফাংশন
-  void _addTransaction(List<Map<String, String>> list) {
+  void _addTransaction(List<Map<String, String>> list, AppLocalizations loc) {
     if (_descController.text.isNotEmpty && _amountController.text.isNotEmpty) {
       setState(() {
         list.add({
@@ -206,7 +252,6 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
     }
   }
 
-  // ডিলিট করার ফাংশন (ডায়ালগসহ)
   void _showDeleteDialog(BuildContext context, List<Map<String, String>> list, int index, AppLocalizations loc) {
     showDialog(
       context: context,
@@ -228,7 +273,45 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
     );
   }
 
-  // হোম পেজ (কার্ড ডিজাইন)
+  // সেটিংস পেজ
+  Widget _buildSettingsPage(AppLocalizations loc, SettingsProvider settingsProvider) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView(
+        children: [
+          Text(loc.getTranslatedValue('settings'), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          // ভাষা পরিবর্তন
+          ListTile(
+            title: Text(loc.getTranslatedValue('language')),
+            trailing: DropdownButton<Locale>(
+              value: loc.locale,
+              onChanged: (Locale? newLocale) {
+                if (newLocale != null) {
+                  settingsProvider.setLanguage(newLocale);
+                }
+              },
+              items: const [
+                DropdownMenuItem(value: Locale('en'), child: Text('English')),
+                DropdownMenuItem(value: Locale('bn'), child: Text('বাংলা')),
+                DropdownMenuItem(value: Locale('es'), child: Text('Español')),
+              ],
+            ),
+          ),
+          const Divider(),
+          // ডার্ক মোড টগল
+          SwitchListTile(
+            title: Text(loc.getTranslatedValue('dark_mode')),
+            value: settingsProvider.isDarkMode,
+            onChanged: (value) {
+              settingsProvider.toggleTheme(value);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildHome(AppLocalizations loc) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -248,7 +331,6 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
 
   Widget _buildMenuCard(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
     return Card(
-      color: color.withOpacity(0.3),
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
         leading: Icon(icon, color: Colors.cyanAccent),
@@ -259,7 +341,6 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
     );
   }
 
-  // হিসাব পেজ (Transaction Page)
   Widget _buildTransactionPage(List<Map<String, String>> list, Color btnColor, AppLocalizations loc) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -270,19 +351,18 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
           TextField(controller: _amountController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: loc.getTranslatedValue('label_amount'), border: const OutlineInputBorder())),
           const SizedBox(height: 10),
           ListTile(
-            title: Text("${loc.getTranslatedValue('label_date')}: ${DateFormat.yMd(Localizations.localeOf(context).languageCode).format(_selectedDate)}"),
+            title: Text("${loc.getTranslatedValue('label_date')}:${DateFormat.yMd(Localizations.localeOf(context).languageCode).format(_selectedDate)}"),
             trailing: const Icon(Icons.calendar_today),
             onTap: () => _pickDate(context),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: btnColor),
-            onPressed: () => _addTransaction(list),
+            onPressed: () => _addTransaction(list, loc),
             child: Text(loc.getTranslatedValue('btn_save')),
           ),
           const SizedBox(height: 20),
           Align(alignment: Alignment.centerLeft, child: Text(loc.getTranslatedValue('header_list'), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.cyanAccent))),
           const SizedBox(height: 10),
-          // তালিকা
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -292,86 +372,11 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
               return Card(
                 child: ListTile(
                   title: Text(item['desc']!),
-                  subtitle: Text("${loc.getTranslatedValue('label_date')}: ${item['date']}"),
+                  subtitle: Text("${loc.getTranslatedValue('label_date')}:${item['date']}"),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text("৳ ${item['amount']}", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.greenAccent)),
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _showDeleteDialog(context, list, index, loc),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // বর্তমান পেজের জন্য অনুবাদ লোড করা
-    final loc = AppLocalizations.of(context)!;
-    final titles = [
-      loc.getTranslatedValue('home_title'),
-      loc.getTranslatedValue('title_daily'),
-      loc.getTranslatedValue('title_weekly'),
-      loc.getTranslatedValue('title_monthly')
-    ];
-    final bottomNavItems = [
-      BottomNavigationBarItem(icon: const Icon(Icons.home), label: loc.getTranslatedValue('home_nav')),
-      BottomNavigationBarItem(icon: const Icon(Icons.today), label: loc.getTranslatedValue('daily_nav')),
-      BottomNavigationBarItem(icon: const Icon(Icons.date_range), label: loc.getTranslatedValue('weekly_nav')),
-      BottomNavigationBarItem(icon: const Icon(Icons.calendar_month), label: loc.getTranslatedValue('monthly_nav')),
-    ];
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(titles[_currentIndex], style: const TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        actions: [
-          // ৩-ডট মেনু (ভাষা পরিবর্তনের জন্য)
-          PopupMenuButton<Locale>(
-            onSelected: (Locale newLocale) {
-              // ভাষা পরিবর্তন করার অ্যাকশন
-              MyApp.setLocale(context, newLocale);
-            },
-            icon: const Icon(Icons.more_vert), // থ্রি-ডট আইকন
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<Locale>>[
-              const PopupMenuItem<Locale>(
-                value: Locale('en', ''),
-                child: Text('English'),
-              ),
-              const PopupMenuItem<Locale>(
-                value: Locale('bn', ''),
-                child: Text('বাংলা'),
-              ),
-              const PopupMenuItem<Locale>(
-                value: Locale('es', ''),
-                child: Text('Español'),
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: _currentIndex == 0 ? _buildHome(loc) : _buildTransactionPage(
-        _currentIndex == 1 ? _dailyTransactions : (_currentIndex == 2 ? _weeklyTransactions : _monthlyTransactions),
-        _currentIndex == 1 ? Colors.indigo.shade700 : (_currentIndex == 2 ? Colors.teal.shade700 : Colors.deepPurple.shade700),
-        loc
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.cyanAccent,
-        unselectedItemColor: Colors.white60,
-        backgroundColor: Colors.black,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: bottomNavItems,
-      ),
-    );
-  }
-}
+                        onPressed:
