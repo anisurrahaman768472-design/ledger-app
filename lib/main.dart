@@ -15,35 +15,36 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.grey[900],
         appBarTheme: AppBarTheme(backgroundColor: Colors.indigo.shade900),
       ),
-      home: const HomeScreen(),
+      home: const AmarKhataApp(),
     );
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class AmarKhataApp extends StatefulWidget {
+  const AmarKhataApp({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<AmarKhataApp> createState() => _AmarKhataAppState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 1; // দৈনিক ট্যাব ডিফল্ট
+class _AmarKhataAppState extends State<AmarKhataApp> {
+  int _currentIndex = 0;
 
-  final TextEditingController _titleController = TextEditingController();
+  final List<String> _titles = ["হোম", "দৈনিক", "সাপ্তাহিক", "মাসিক"];
+
+  // দৈনিক হিসাবের জন্য ডেটা লিস্ট এবং কন্ট্রোলার
+  final TextEditingController _descController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
-  final List<Map<String, String>> _transactions = [];
+  final List<Map<String, String>> _dailyTransactions = [];
 
-  final List<String> _titles = ["হোম", "দৈনিক হিসাব", "মাসিক হিসাব", "বাৎসরিক হিসাব"];
-
-  void _addTransaction() {
-    if (_titleController.text.isNotEmpty && _amountController.text.isNotEmpty) {
+  void _addDailyTransaction() {
+    if (_descController.text.isNotEmpty && _amountController.text.isNotEmpty) {
       setState(() {
-        _transactions.add({
-          "title": _titleController.text,
+        _dailyTransactions.add({
+          "desc": _descController.text,
           "amount": _amountController.text,
         });
-        _titleController.clear();
+        _descController.clear();
         _amountController.clear();
       });
     }
@@ -53,16 +54,16 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[_currentIndex]), // ট্যাব অনুযায়ী টাইটেল পরিবর্তন হবে
+        title: Text(_titles[_currentIndex]),
         centerTitle: true,
       ),
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          const Center(child: Text("হোম পেজ")),
-          _buildDailyPage(),
-          const Center(child: Text("মাসিক হিসাব")),
-          const Center(child: Text("বাৎসরিক হিসাব")),
+          _buildHome(),
+          _buildDailyPage(), // খাতার দৈনিক পাতার আসল কাজ এখানে
+          _buildPlaceholderPage("সাপ্তাহিক হিসাবের খাতা"),
+          _buildPlaceholderPage("মাসিক হিসাবের খাতা"),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -71,34 +72,88 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: Colors.cyanAccent,
         unselectedItemColor: Colors.white60,
         backgroundColor: Colors.black,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "হোম"),
           BottomNavigationBarItem(icon: Icon(Icons.today), label: "দৈনিক"),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_view_week), label: "সাপ্তাহিক"),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: "মাসিক"),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: "বাৎসরিক"),
         ],
       ),
     );
   }
 
+  Widget _buildHome() {
+    return const Center(
+      child: Text("হোম পেজ - মূল সারসংক্ষেপ", style: TextStyle(fontSize: 20, color: Colors.white)),
+    );
+  }
+
+  // দৈনিক হিসাবের পাতা (এখানে ইনপুট ও লিস্ট থাকবে)
   Widget _buildDailyPage() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          TextField(controller: _titleController, decoration: const InputDecoration(labelText: "বিবরণ")),
-          TextField(controller: _amountController, decoration: const InputDecoration(labelText: "টাকা"), keyboardType: TextInputType.number),
+          TextField(
+            controller: _descController,
+            decoration: const InputDecoration(
+              labelText: "বিবরণ (যেমন: বাজার খরচ)",
+              labelStyle: TextStyle(color: Colors.white70),
+              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
+            ),
+            style: const TextStyle(color: Colors.white),
+          ),
           const SizedBox(height: 10),
-          ElevatedButton(onPressed: _addTransaction, child: const Text("সেভ")),
+          TextField(
+            controller: _amountController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: "টাকার পরিমাণ",
+              labelStyle: TextStyle(color: Colors.white70),
+              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
+            ),
+            style: const TextStyle(color: Colors.white),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo.shade700),
+            onPressed: _addDailyTransaction,
+            child: const Text("হিসাব সেভ করুন", style: TextStyle(color: Colors.white)),
+          ),
+          const SizedBox(height: 20),
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text("আজকের তালিকা:", style: TextStyle(fontSize: 16, color: Colors.cyanAccent, fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(height: 10),
           Expanded(
             child: ListView.builder(
-              itemCount: _transactions.length,
-              itemBuilder: (ctx, i) => Card(child: ListTile(title: Text(_transactions[i]['title']!), trailing: Text("${_transactions[i]['amount']} টাকা"))),
+              itemCount: _dailyTransactions.length,
+              itemBuilder: (context, index) {
+                final item = _dailyTransactions[index];
+                return Card(
+                  color: Colors.grey[850],
+                  child: ListTile(
+                    title: Text(item["desc"]!, style: const TextStyle(color: Colors.white)),
+                    trailing: Text("${item["amount"]} টাকা", style: const TextStyle(color: Colors.cyanAccent, fontWeight: FontWeight.bold)),
+                  ),
+                );
+              },
             ),
-          )
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPlaceholderPage(String title) {
+    return Center(
+      child: Text(title, style: const TextStyle(fontSize: 20, color: Colors.white)),
     );
   }
 }
