@@ -9,9 +9,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: Colors.grey[900],
+        appBarTheme: AppBarTheme(backgroundColor: Colors.indigo.shade900),
+      ),
+      home: const HomeScreen(),
     );
   }
 }
@@ -24,16 +28,18 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 1;
+  int _currentIndex = 1; // দৈনিক ট্যাব ডিফল্ট
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
-  final List<Map<String, String>> _dailyTransactions = [];
+  final List<Map<String, String>> _transactions = [];
+
+  final List<String> _titles = ["হোম", "দৈনিক হিসাব", "মাসিক হিসাব", "বাৎসরিক হিসাব"];
 
   void _addTransaction() {
     if (_titleController.text.isNotEmpty && _amountController.text.isNotEmpty) {
       setState(() {
-        _dailyTransactions.add({
+        _transactions.add({
           "title": _titleController.text,
           "amount": _amountController.text,
         });
@@ -45,101 +51,52 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> pages = [
-      const Center(child: Text("হোম পেজ", style: TextStyle(color: Colors.white, fontSize: 20))),
-      Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _titleController,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                labelText: "বিবরণ (যেমন: বাজার খরচ)",
-                labelStyle: TextStyle(color: Colors.white70),
-                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
-                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.cyanAccent)),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _amountController,
-              keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                labelText: "টাকার পরিমাণ",
-                labelStyle: TextStyle(color: Colors.white70),
-                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white54)),
-                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.cyanAccent)),
-              ),
-            ),
-            const SizedBox(height: 15),
-            ElevatedButton.icon(
-              onPressed: _addTransaction,
-              icon: const Icon(Icons.save),
-              label: const Text("সেভ করুন"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.cyanAccent,
-                foregroundColor: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _dailyTransactions.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    color: Colors.indigo.shade800,
-                    child: ListTile(
-                      title: Text(
-                        _dailyTransactions[index]["title"]!,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      trailing: Text(
-                        "৳ ${_dailyTransactions[index]["amount"]!}",
-                        style: const TextStyle(
-                          color: Colors.cyanAccent,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-      const Center(child: Text("মাসিক হিসাব", style: TextStyle(color: Colors.white, fontSize: 20))),
-      const Center(child: Text("বাৎসরিক হিসাব", style: TextStyle(color: Colors.white, fontSize: 20))),
-    ];
-
     return Scaffold(
-      backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        title: const Text("আমার খাতা - Anisur Rahman"),
-        backgroundColor: Colors.indigo.shade900,
+        title: Text(_titles[_currentIndex]), // ট্যাব অনুযায়ী টাইটেল পরিবর্তন হবে
+        centerTitle: true,
       ),
       body: IndexedStack(
         index: _currentIndex,
-        children: pages,
+        children: [
+          const Center(child: Text("হোম পেজ")),
+          _buildDailyPage(),
+          const Center(child: Text("মাসিক হিসাব")),
+          const Center(child: Text("বাৎসরিক হিসাব")),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        backgroundColor: Colors.black,
+        type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.cyanAccent,
         unselectedItemColor: Colors.white60,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        backgroundColor: Colors.black,
+        onTap: (index) => setState(() => _currentIndex = index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "হোম"),
           BottomNavigationBarItem(icon: Icon(Icons.today), label: "দৈনিক"),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: "মাসিক"),
           BottomNavigationBarItem(icon: Icon(Icons.star), label: "বাৎসরিক"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDailyPage() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          TextField(controller: _titleController, decoration: const InputDecoration(labelText: "বিবরণ")),
+          TextField(controller: _amountController, decoration: const InputDecoration(labelText: "টাকা"), keyboardType: TextInputType.number),
+          const SizedBox(height: 10),
+          ElevatedButton(onPressed: _addTransaction, child: const Text("সেভ")),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _transactions.length,
+              itemBuilder: (ctx, i) => Card(child: ListTile(title: Text(_transactions[i]['title']!), trailing: Text("${_transactions[i]['amount']} টাকা"))),
+            ),
+          )
         ],
       ),
     );
