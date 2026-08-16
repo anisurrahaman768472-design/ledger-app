@@ -87,11 +87,11 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
     );
   }
 
-  // আলাদা পেজ তৈরির উইজেট
+  // হিসাব পেজ (ListView ঠিক করা হয়েছে)
   Widget _buildTransactionPage(TextEditingController descCtrl, TextEditingController amountCtrl, List<Map<String, String>> list, Color btnColor) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Column(
+      child: ListView(
         children: [
           TextField(
             controller: descCtrl,
@@ -118,20 +118,20 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
             child: Text("তালিকা:", style: TextStyle(fontSize: 16, color: Colors.cyanAccent, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 10),
-          Expanded(
-            child: ListView.builder(
-              itemCount: list.length,
-              itemBuilder: (context, index) {
-                final item = list[index];
-                return Card(
-                  color: Colors.grey[850],
-                  child: ListTile(
-                    title: Text(item['desc'] ?? ''),
-                    trailing: Text("৳ ${item['amount']}", style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
-                  ),
-                );
-              },
-            ),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: list.length,
+            itemBuilder: (context, index) {
+              final item = list[index];
+              return Card(
+                color: Colors.grey[850],
+                child: ListTile(
+                  title: Text(item['desc'] ?? ''),
+                  trailing: Text("৳ ${item['amount']}", style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold)),
+                ),
+              );
+            },
           ),
         ],
       ),
