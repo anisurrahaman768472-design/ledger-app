@@ -32,7 +32,7 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
 
   final List<String> _titles = ["হোম", "দৈনিক", "সাপ্তাহিক", "মাসিক"];
 
-  // দৈনিক হিসাবের জন্য ডেটা লিস্ট এবং কন্ট্রোলার
+  // দৈনিক হিসাবের জন্য কন্ট্রোলার ও লিস্ট
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final List<Map<String, String>> _dailyTransactions = [];
@@ -61,7 +61,7 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
         index: _currentIndex,
         children: [
           _buildHome(),
-          _buildDailyPage(), // খাতার দৈনিক পাতার আসল কাজ এখানে
+          _buildDailyPage(),
           _buildPlaceholderPage("সাপ্তাহিক হিসাবের খাতা"),
           _buildPlaceholderPage("মাসিক হিসাবের খাতা"),
         ],
@@ -93,7 +93,7 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
     );
   }
 
-  // দৈনিক হিসাবের পাতা (এখানে ইনপুট ও লিস্ট থাকবে)
+  // দৈনিক হিসাবের পাতা
   Widget _buildDailyPage() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
