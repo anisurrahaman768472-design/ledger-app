@@ -1,25 +1,30 @@
-name: ledger_app
-description: "A new Flutter project."
-publish_to: 'none'
-version: 1.0.0+1
+  // টেক্সট কন্ট্রোলারগুলো এখানে ডিক্লেয়ার করা থাকবে
+  final TextEditingController _descController = TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
+  DateTime _selectedDate = DateTime.now();
 
-environment:
-  sdk: '>=3.0.0 <4.0.0'
-
-dependencies:
-  flutter:
-    sdk: flutter
-  flutter_localizations:
-    sdk: flutter
-  cupertino_icons: ^1.0.2
-  intl: ^0.18.1
-  shared_preferences: ^2.2.2
-  provider: ^6.1.1
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^2.0.0
-
-flutter:
-  uses-material-design: true
+  // এন্ট্রি সেভ করার ফাংশন
+  void _addTransaction(List<Map<String, String>> list, AppLocalizations loc) {
+    if (_descController.text.isNotEmpty && _amountController.text.isNotEmpty) {
+      setState(() {
+        // লিস্টে নতুন লেনদেন যোগ হচ্ছে
+        list.add({
+          'desc': _descController.text,
+          'amount': _amountController.text,
+          'date': DateFormat('yyyy-MM-dd').format(_selectedDate),
+        });
+        
+        // ইনপুট ফিল্ডগুলো খালি করে দেওয়া হচ্ছে
+        _descController.clear();
+        _amountController.clear();
+      });
+      
+      // লোকাল স্টোরেজে ডেটা পার্মানেন্টলি সেভ করার কল (যদি থেকে থাকে)
+      _saveDataToPrefs();
+    } else {
+      // যদি কোনো ঘর খালি থাকে, একটি ছোট মেসেজ দেখাতে পারেন
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.getTranslatedValue('msg_fill_fields') ?? 'সব ঘর পূরণ করুন')),
+      );
+    }
+  }
