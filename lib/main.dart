@@ -82,6 +82,37 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
     );
   }
 
+  // সুন্দর হোম পেজ কার্ড ডিজাইন
+  Widget _buildHome() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView(
+        children: [
+          const Text("আমার খাতা - অ্যাপে স্বাগতম!", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.cyanAccent)),
+          const SizedBox(height: 10),
+          const Text("আপনার সকল হিসাব নিকাশ এখন এক জায়গায় নিরাপদে রাখুন।", style: TextStyle(fontSize: 14, color: Colors.white70)),
+          const SizedBox(height: 20),
+          _buildMenuCard("দৈনিক খাতা", "আজকের খরচ যোগ করুন", Icons.today, Colors.indigo, () => setState(() => _currentIndex = 1)),
+          _buildMenuCard("সাপ্তাহিক খাতা", "সাপ্তাহিক হিসাব দেখুন", Icons.date_range, Colors.teal, () => setState(() => _currentIndex = 2)),
+          _buildMenuCard("মাসিক খাতা", "মাসের মোট হিসাব", Icons.calendar_month, Colors.deepPurple, () => setState(() => _currentIndex = 3)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuCard(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
+    return Card(
+      color: color.withOpacity(0.3),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        leading: Icon(icon, color: Colors.cyanAccent),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(subtitle),
+        onTap: onTap,
+      ),
+    );
+  }
+
   Widget _buildTransactionPage(List<Map<String, String>> list, Color btnColor) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -134,14 +165,16 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_titles[_currentIndex])),
-      body: _currentIndex == 0 ? const Center(child: Text("স্বাগতম! মেনু থেকে যেকোনো খাতা সিলেক্ট করুন।", style: TextStyle(fontSize: 18))) : _buildTransactionPage(
+      appBar: AppBar(title: Text(_titles[_currentIndex]), centerTitle: true),
+      body: _currentIndex == 0 ? _buildHome() : _buildTransactionPage(
         _currentIndex == 1 ? _dailyTransactions : (_currentIndex == 2 ? _weeklyTransactions : _monthlyTransactions),
         _currentIndex == 1 ? Colors.indigo : (_currentIndex == 2 ? Colors.teal : Colors.deepPurple)
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.cyanAccent,
+        unselectedItemColor: Colors.white60,
         onTap: (index) => setState(() => _currentIndex = index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "হোম"),
