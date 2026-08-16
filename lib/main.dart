@@ -196,9 +196,21 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            _buildMenuCard('Daily Ledger', 'Add today\'s expense', Icons.today, () {}),
-            _buildMenuCard('Weekly Ledger', 'View weekly statement', Icons.date_range, () {}),
-            _buildMenuCard('Monthly Ledger', 'Total monthly account', Icons.calendar_month, () {}),
+            _buildMenuCard('Daily Ledger', 'Add today\'s expense', Icons.today, () {
+              setState(() {
+                _currentIndex = 1;
+              });
+            }),
+            _buildMenuCard('Weekly Ledger', 'View weekly statement', Icons.date_range, () {
+              setState(() {
+                _currentIndex = 2;
+              });
+            }),
+            _buildMenuCard('Monthly Ledger', 'Total monthly account', Icons.calendar_month, () {
+              setState(() {
+                _currentIndex = 3;
+              });
+            }),
           ],
         ),
       ),
