@@ -359,24 +359,4 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
             style: ElevatedButton.styleFrom(backgroundColor: btnColor),
             onPressed: () => _addTransaction(list, loc),
             child: Text(loc.getTranslatedValue('btn_save')),
-          ),
-          const SizedBox(height: 20),
-          Align(alignment: Alignment.centerLeft, child: Text(loc.getTranslatedValue('header_list'), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.cyanAccent))),
-          const SizedBox(height: 10),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: list.length,
-            itemBuilder: (context, index) {
-              final item = list[index];
-              return Card(
-                child: ListTile(
-                  title: Text(item['desc']!),
-                  subtitle: Text("${loc.getTranslatedValue('label_date')}:${item['date']}"),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text("৳ ${item['amount']}", style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.greenAccent)),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed:
+          
