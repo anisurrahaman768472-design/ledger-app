@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart';
 
 void main() {
   runApp(const MyKhataApp());
@@ -17,23 +16,16 @@ class MyKhataApp extends StatefulWidget {
 class _MyKhataAppState extends State<MyKhataApp> {
   Locale _locale = const Locale('en');
 
-  void _changeLanguage(String langCode) async {
+  void _changeLanguage(String langCode) {
     setState(() {
       _locale = Locale(langCode);
     });
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('lang', langCode);
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Amar Khata',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF121212),
-        colorScheme: const ColorScheme.dark(primary: Colors.tealAccent, secondary: Colors.teal),
-      ),
       locale: _locale,
       supportedLocales: const [Locale('en', ''), Locale('bn', '')],
       localizationsDelegates: const [
@@ -64,8 +56,6 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         _transactions.add(_textController.text);
       });
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList('transactions', _transactions);
       _textController.clear();
       Navigator.pop(context);
     }
@@ -87,24 +77,11 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
       ),
-      body: _currentIndex == 0 
-          ? _buildHome() 
-          : Center(child: Text('Transactions: ${_transactions.toString()}')),
+      body: _currentIndex == 0 ? _buildHome() : _buildLedger(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.tealAccent,
-        onPressed: () => showModalBottomSheet(
-          context: context,
-          builder: (_) => Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                TextField(controller: _textController, decoration: const InputDecoration(labelText: 'Enter Expense')),
-                ElevatedButton(onPressed: _addTransaction, child: const Text('Save'))
-              ],
-            ),
-          ),
-        ),
-        child: const Icon(Icons.add),
+        onPressed: () => _showModal(context),
+        child: const Icon(Icons.add, color: Colors.black),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -123,12 +100,32 @@ class _MainScreenState extends State<MainScreen> {
     children: [
       const Card(child: ListTile(title: Text('Total Balance'), subtitle: Text('\$ 0.00'))),
       const SizedBox(height: 20),
-      _menuItem('Daily Ledger', Icons.today),
-      _menuItem('Weekly Ledger', Icons.date_range),
+      _menuItem('Daily Ledger', Icons.today, () => setState(() => _currentIndex = 1)),
+      _menuItem('Weekly Ledger', Icons.date_range, () => setState(() => _currentIndex = 1)),
     ],
   );
 
-  Widget _menuItem(String title, IconData icon) => Card(
-    child: ListTile(leading: Icon(icon), title: Text(title), trailing: const Icon(Icons.arrow_forward)),
+  Widget _buildLedger() => ListView.builder(
+    itemCount: _transactions.length,
+    itemBuilder: (context, index) => ListTile(title: Text(_transactions[index])),
   );
+
+  Widget _menuItem(String title, IconData icon, VoidCallback onTap) => Card(
+    child: ListTile(
+      leading: Icon(icon, color: Colors.tealAccent),
+      title: Text(title),
+      trailing: const Icon(Icons.arrow_forward),
+      onTap: onTap,
+    ),
+  );
+
+  void _showModal(BuildContext context) {
+    showModalBottomSheet(context: context, builder: (_) => Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(children: [
+        TextField(controller: _textController, decoration: const InputDecoration(labelText: 'Expense')),
+        ElevatedButton(onPressed: _addTransaction, child: const Text('Save'))
+      ]),
+    ));
+  }
 }
