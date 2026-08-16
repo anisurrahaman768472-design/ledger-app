@@ -47,6 +47,7 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
     if (picked != null) setState(() => _selectedDate = picked);
   }
 
+  // সংশোধন করা ফাংশন - এখন সাথে সাথে UI আপডেট হবে
   void _addTransaction(List<Map<String, String>> list) {
     if (_descController.text.isNotEmpty && _amountController.text.isNotEmpty) {
       setState(() {
@@ -58,6 +59,8 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
         _descController.clear();
         _amountController.clear();
       });
+      // সফল হলে ছোট একটি মেসেজ দেখানো যেতে পারে (ঐচ্ছিক)
+      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("হিসাব সেভ করা হয়েছে")));
     }
   }
 
@@ -82,7 +85,6 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
     );
   }
 
-  // সুন্দর হোম পেজ কার্ড ডিজাইন
   Widget _buildHome() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -133,6 +135,7 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
             child: const Text("সেভ করুন"),
           ),
           const SizedBox(height: 20),
+          // তালিকা দেখানোর অংশ (Rebuilds automatically on state change)
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -168,13 +171,14 @@ class _AmarKhataAppState extends State<AmarKhataApp> {
       appBar: AppBar(title: Text(_titles[_currentIndex]), centerTitle: true),
       body: _currentIndex == 0 ? _buildHome() : _buildTransactionPage(
         _currentIndex == 1 ? _dailyTransactions : (_currentIndex == 2 ? _weeklyTransactions : _monthlyTransactions),
-        _currentIndex == 1 ? Colors.indigo : (_currentIndex == 2 ? Colors.teal : Colors.deepPurple)
+        _currentIndex == 1 ? Colors.indigo.shade700 : (_currentIndex == 2 ? Colors.teal.shade700 : Colors.deepPurple.shade700)
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Colors.cyanAccent,
         unselectedItemColor: Colors.white60,
+        backgroundColor: Colors.black,
         onTap: (index) => setState(() => _currentIndex = index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "হোম"),
