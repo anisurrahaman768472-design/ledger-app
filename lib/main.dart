@@ -1,63 +1,77 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() => runApp(const MyKhataApp());
+
+class MyKhataApp extends StatefulWidget {
+  const MyKhataApp({super.key});
+
+  @override
+  State<MyKhataApp> createState() => _MyKhataAppState();
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class _MyKhataAppState extends State<MyKhataApp> {
+  ThemeMode _themeMode = ThemeMode.dark; // ডার্ক মোড ডিফল্ট
+  Locale _locale = const Locale('en'); // ডিফল্ট ভাষা ইংরেজি
+
+  void toggleTheme() => setState(() => _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark);
+  void changeLanguage(String lang) => setState(() => _locale = Locale(lang));
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: const HomeScreen(),
+      themeMode: _themeMode,
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      locale: _locale,
+      home: MainScreen(toggleTheme: toggleTheme, changeLanguage: changeLanguage),
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class MainScreen extends StatefulWidget {
+  final VoidCallback toggleTheme;
+  final Function(String) changeLanguage;
+  const MainScreen({super.key, required this.toggleTheme, required this.changeLanguage});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  double totalBalance = 0.0; // আপনার ব্যালেন্স ভেরিয়েবল
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Amar Khata'),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: const [
-          Card(
-            child: ListTile(
-              title: Text('Total Balance', style: TextStyle(fontSize: 16)),
-              subtitle: Text('\$ 0.00', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-            ),
-          ),
-          SizedBox(height: 15),
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.today, color: Colors.tealAccent),
-              title: Text('Daily Ledger'),
-              subtitle: Text('Add today\'s expense'),
-              trailing: Icon(Icons.arrow_forward_ios, size: 16),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: Icon(Icons.date_range, color: Colors.tealAccent),
-              title: Text('Weekly Ledger'),
-              subtitle: Text('View weekly statement'),
-              trailing: Icon(Icons.arrow_forward_ios, size: 16),
-            ),
+        title: const Text('Home - Main Menu'),
+        actions: [
+          IconButton(on: widget.toggleTheme, icon: const Icon(Icons.brightness_6)),
+          PopupMenuButton(
+            onSelected: widget.changeLanguage,
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: 'en', child: Text('English')),
+              const PopupMenuItem(value: 'bn', child: Text('বাংলা')),
+            ],
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.tealAccent,
-        onPressed: () {},
-        child: const Icon(Icons.add, color: Colors.black),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // ব্যালেন্স কার্ড
+          Card(
+            color: Colors.teal.shade900,
+            child: ListTile(
+              title: const Text('Total Balance', style: TextStyle(color: Colors.white)),
+              subtitle: Text('\$ ${totalBalance.toStringAsFixed(2)}', 
+                  style: const TextStyle(fontSize: 24, color: Colors.white)),
+              trailing: const Icon(Icons.account_balance_wallet, color: Colors.white),
+            ),
+          ),
+          // অন্যান্য বাটনগুলো...
+        ],
       ),
     );
   }
