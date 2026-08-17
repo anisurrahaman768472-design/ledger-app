@@ -23,14 +23,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
-
-  // বাটন এবং কার্ডের ক্লিক হ্যান্ডলার
-  void _onItemTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
+  int _currentIndex = 0; // এটি সবসময় হোম বাটন দিয়ে শুরু হবে
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +36,11 @@ class _MainScreenState extends State<MainScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: _onItemTapped,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Ledger'),
@@ -56,26 +53,36 @@ class _MainScreenState extends State<MainScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Card(child: ListTile(title: Text('Total Balance'), subtitle: Text('\$ 0.00'))),
-        const SizedBox(height: 20),
-        ListTile(
-          tileColor: Colors.grey[200],
-          title: const Text('Daily Ledger'),
-          trailing: const Icon(Icons.arrow_forward),
-          onTap: () => _onItemTapped(1), // Ledger পেজে যাবে
+        const Card(
+          child: ListTile(
+            title: Text('Total Balance'),
+            subtitle: Text('\$ 0.00'),
+          ),
         ),
-        const SizedBox(height: 10),
-        ListTile(
-          tileColor: Colors.grey[200],
-          title: const Text('Weekly Ledger'),
-          trailing: const Icon(Icons.arrow_forward),
-          onTap: () => _onItemTapped(1), // Ledger পেজে যাবে
+        const SizedBox(height: 20),
+        Card(
+          child: ListTile(
+            title: const Text('Daily Ledger'),
+            trailing: const Icon(Icons.arrow_forward),
+            onTap: () {
+              setState(() => _currentIndex = 1);
+            },
+          ),
+        ),
+        Card(
+          child: ListTile(
+            title: const Text('Weekly Ledger'),
+            trailing: const Icon(Icons.arrow_forward),
+            onTap: () {
+              setState(() => _currentIndex = 1);
+            },
+          ),
         ),
       ],
     );
   }
 
   Widget _buildLedger() {
-    return const Center(child: Text('Ledger Page: All transactions will appear here'));
+    return const Center(child: Text('Ledger Page: All transactions here'));
   }
 }
